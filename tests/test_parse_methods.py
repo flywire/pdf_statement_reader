@@ -8,7 +8,7 @@ from pdf_statement_reader.parse import clean_prestrip
 # from pdf_statement_reader.parse import clean_numeric
 # from pdf_statement_reader.parse import clean_trans_detail
 from pdf_statement_reader.parse import clean_unwrap
-# from pdf_statement_reader.parse import clean_date
+from pdf_statement_reader.parse import clean_date
 from pdf_statement_reader.parse import clean_case
 # from pdf_statement_reader.parse import clean_dropna
 # from pdf_statement_reader.parse import reorder_columns
@@ -52,18 +52,33 @@ def test_clean_prestrip():
     )
 
 
-def test_clean_unwrap():
-    _df = pd.DataFrame({['Date':["01/01/2020","","","26/05/2020"],
-                         'Faction':["Test String", "Another test","Short", "Last bit."]})
-    _config = {'$schema': '',
-               'columns': {'Key': 'Date', 'F2': 'Faction'},
-               'cleaning': {'unwrap': ['Key', 'F2']}
-              }
+# def test_clean_unwrap():
+#     _df = pd.DataFrame({['Date':["01/01/2020","","","26/05/2020"],
+#                          'Faction':["Test String", "Another test","Short", "Last bit."]})
+#     _config = {'$schema': '',
+#                'columns': {'Key': 'Date', 'F2': 'Faction'},
+#                'cleaning': {'unwrap': ['Key', 'F2']}
+#               }
+# 
+#     df = _df
+#     config = _config
+#     assert clean_unwrap(df, config) == [['Date':["01/01/2020","","","26/05/2020"],
+#                          'Faction':["Test String Another test Short", "Another test","Short", "Last bit."]]
 
-    df = _df
-    config = _config
-    assert clean_unwrap(df, config) == [['Date':["01/01/2020","","","26/05/2020"],
-                         'Faction':["Test String Another test Short", "Another test","Short", "Last bit."]]
+
+def test_clean_date():
+    df1 = pd.DataFrame(
+        {"Faction": ["01/02/03"]}
+    )
+    df2 = pd.DataFrame({"Faction": ["2003-02-01"]})
+    df2["Faction"] = pd.to_datetime(df2["Faction"])
+    config = {"$schema": "",
+               "cleaning": {"date": ["F1"], "date_format": "%d/%m/%y",},
+               "columns": {"F1": "Faction"}
+             }
+
+    assert_frame_equal(clean_date(df1, config), df2)
+    return df1
 
 
 def test_clean_case():
