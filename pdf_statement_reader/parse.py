@@ -122,6 +122,7 @@ def clean_date(df, config):
         if no_year:
             df[col] += " " + year
         df[col] = pd.to_datetime(df[col], errors="coerce", format=date_format)
+    return df
 
 
 def clean_unwrap(df, config):
@@ -176,7 +177,7 @@ def parse_statement(filename, config):
 
     if "date" in config["cleaning"]:
         logging.debug("**" + "date")
-        clean_date(statement, config)
+        statement = clean_date(statement, config)
 
     if "unwrap" in config["cleaning"]:
         logging.debug("**" + "unwrap")
